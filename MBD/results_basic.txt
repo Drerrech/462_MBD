@@ -1,0 +1,19 @@
+k:    0 | x: [1.0]                            | f(x):   4.00 | delta: 1.0000 | f_evals:      0 | success: False | msg: 
+k:    0 | x: [-1.5]                           | f(x):   0.25 | delta: 1.0000 | f_evals:      1 | success: False | msg: 
+k:    1 | x: [-1.5]                           | f(x):   0.25 | delta: 0.5000 | f_evals:      2 | success: False | msg: 
+k:    1 | x: [-1.0]                           | f(x):   0.00 | delta: 0.5000 | f_evals:      3 | success: False | msg: 
+k:    1 | x: [-1.0]                           | f(x):   0.00 | delta: 0.5000 | f_evals:      3 | success: False | msg: 
+k:    2 | x: [-1.0]                           | f(x):   0.00 | delta: 0.2500 | f_evals:      3 | success: False | msg: 
+k:    3 | x: [-1.0]                           | f(x):   0.00 | delta: 0.1250 | f_evals:      4 | success: False | msg: 
+k:    4 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0625 | f_evals:      5 | success: False | msg: 
+k:    5 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0312 | f_evals:      6 | success: False | msg: 
+k:    6 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0156 | f_evals:      7 | success: False | msg: 
+k:    7 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0078 | f_evals:      8 | success: False | msg: 
+k:    8 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0039 | f_evals:      9 | success: False | msg: 
+k:    9 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0020 | f_evals:     10 | success: False | msg: 
+k:   10 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0010 | f_evals:     11 | success: False | msg: 
+k:   11 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0005 | f_evals:     12 | success: False | msg: 
+k:   12 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0002 | f_evals:     13 | success: False | msg: 
+k:   13 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0001 | f_evals:     14 | success: False | msg: 
+k:   14 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0001 | f_evals:     15 | success: False | msg: 
+k:   14 | x: [-1.0]                           | f(x):   0.00 | delta: 0.0001 | f_evals:     16 | success: True | msg: declared success in step 2a and terminated
