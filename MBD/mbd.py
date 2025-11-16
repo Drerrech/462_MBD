@@ -16,51 +16,47 @@ class point_reuse:
             return (val, 1) # 1 stands for 1 evaluation of the function
 
 
-def mbd_basic(f, x, grad_approx, line_search):
-    open("results_basic.txt", "w").close() # clear log file
+def mbd_basic(f, x, grad_approx, line_search, get_D, delta=1, target_acc=1, armijo_n=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=100):
+    open("MBD/results_basic.txt", "w").close() # clear log file
+    with open("MBD/results_basic.txt", "a") as _f: # add columns
+        _f.write("k    | x                                | f(x)   | delta  | target_acc | ||~g|| | f_evals | success | msg\n")
     def log_progress(msg=""):
-        s = f"k: {k:4} | x: {str(x.tolist()):32} | f(x): {p_reuse.evaluate(x)[0]:6.2f} | delta: {delta:6.4f} | f_evals: {f_evals:6} | success: {success} | msg: {msg}"
+        s = f"{k:4} | {str(x.tolist()):32} | {f_val_at_x:6.2f} | {delta:6.4f} | {target_acc:10.4f} | {norm_g_approx:6.2f} | {f_evals:7} | {success:7} | {msg}"
 
-        with open("results_basic.txt", "a") as f:
-            f.write(s + "\n")
-    
-    def get_D():
-        return delta * torch.eye(N_DIM)
+        with open("MBD/results_basic.txt", "a") as _f:
+            _f.write(s + "\n")
     
     
     # 0) init
-    delta = 1
-    target_acc = 1
-    armijo_n = 0.05
-    eps_d = 0.1 # guessing from this point
-    eps_stop = 1e-4
-
-    f_evals = 0
-    max_f_evals = 100
-
-    k = 0
-    max_k = 100
-
     p_reuse = point_reuse(f)
 
     N_DIM = x.shape[0]
 
+    k = 0
+    max_k = 100
+
     success = False
 
+    norm_g_approx = -1
+
+    f_evals = 0
+    f_val_at_x, _ev = p_reuse.evaluate(x)
+    f_evals += _ev
+
+    log_progress()
     
     while True:
-    # 0.5 🤤) log progress (no termination needed it should be handled in step 2a or 5)
-        log_progress()
-
+        cur_msg = ""
     # 1) model the gradient at xk
         # select D
-        D = get_D()
+        D = get_D(delta, N_DIM)
+        p = D.shape[1]
         
         # build delta_f
-        f_val, _ev = p_reuse.evaluate(x)
+        f_val_at_x, _ev = p_reuse.evaluate(x)
         f_evals += _ev
-        delta_f = -f_val * torch.ones(N_DIM)
-        for i in range(N_DIM):
+        delta_f = -f_val_at_x * torch.ones(p)
+        for i in range(p): # for generalised simplex grad
             f_val, _ev = p_reuse.evaluate(x + D[:, i])
             f_evals += _ev
             delta_f[i] += f_val
@@ -82,6 +78,7 @@ def mbd_basic(f, x, grad_approx, line_search):
             # insufficient accuracy
             delta = 0.5 * delta # NOTE: up to modification
             skip_to_5 = True
+            cur_msg = "2b triggered"
     
 
         if not skip_to_5:
@@ -95,14 +92,18 @@ def mbd_basic(f, x, grad_approx, line_search):
     # 4) update
             if t != -1: # line search success
                 x = x + t*d # NOTE: up to modification
+                cur_msg += "line search success"
             else: # line search failure
                 target_acc = 0.5 * target_acc # NOTE: up to modification
+                cur_msg += "line search failure"
 
 
-        else:
     # 5) termination test
-            if k == max_k: # TODO: add a non-dogshit termination test
-                log_progress(msg="termination test triggered, algorithm terminatioed")
-                return
-            else:
-                k += 1
+        if k == max_k or f_evals >= max_f_evals: # TODO: add a non-dogshit termination test
+            log_progress(msg="termination test triggered, algorithm terminatioed")
+            return
+        else:
+            k += 1
+       
+    # log progress (no termination needed it should be handled in step 2a or 5)
+        log_progress(msg=cur_msg)
