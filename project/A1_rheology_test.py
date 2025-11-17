@@ -6,10 +6,11 @@ import line_search as line_search
 
 import torch
 
-x_0 = torch.tensor([9.690281657, 6.799833301, 5.904578444], dtype=torch.float32)
+x_0 = torch.tensor([11.36633281, 12.12935162, 8.906909739], dtype=torch.float32)
 
-mbd.mbd_basic(A1_rheology.rheology_4_element_wise, x_0, models.gen_simplex_grad_sum_of_models, line_search.forward_backward_line_search, log_path="project/A1_results_sum_basic.txt", f_post_process=A1_rheology.rheology_post_processing, max_f_evals=375)
-#mbd.mbd_basic(A1_rheology.rheology_4_sum, x_0, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path="project/A1_results_basic.txt")
+mbd.mbd_basic(A1_rheology.rheology_4_sum, x_0, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path="project/logs/rheology/A1_results_basic.txt", max_f_evals=375)
+mbd.mbd_basic(A1_rheology.rheology_4_element_wise, x_0, models.gen_simplex_grad_sum_of_models, line_search.forward_backward_line_search, log_path="project/logs/rheology/A1_results_sum_basic.txt", f_post_process=A1_rheology.rheology_post_processing, max_f_evals=375)
+mbd.mbd_v2(A1_rheology.rheology_4_element_wise, x_0, models.gen_simplex_grad_sum_of_models, line_search.forward_backward_line_search, log_path="project/logs/rheology/A1_results_sum_v2.txt", f_post_process=A1_rheology.rheology_post_processing, max_f_evals=375)
 
 
 # a = torch.tensor([9.47924518585205, 8.363113403320312, 8.71458911895752])
