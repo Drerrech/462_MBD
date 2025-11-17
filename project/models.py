@@ -1,6 +1,7 @@
 import torch
 
 def get_D(delta, n_dim, seed=0):
+        #return delta * torch.cat((torch.eye(n_dim), -torch.ones(n_dim, 1)), dim=1)
         return delta * torch.eye(n_dim)
         #return delta * torch.cat((torch.eye(n_dim), -torch.eye(n_dim)), dim=1)
 
