@@ -1,12 +1,16 @@
 import torch
 
-def get_D(delta, n_dim, seed=0):
-        #return delta * torch.cat((torch.eye(n_dim), -torch.ones(n_dim, 1)), dim=1)
+def get_D_identity(delta, n_dim, f=None):
         return delta * torch.eye(n_dim)
-        #return delta * torch.cat((torch.eye(n_dim), -torch.eye(n_dim)), dim=1)
 
+def get_D_function_reuse(delta, n_dim, f=None):
+    # if f is None:
+    #     return get_D_identity(delta, n_dim)
+    # else:
+    #        for 
+    pass
 
-def gen_simplex_grad(N_DIM, x, f, delta, f_val_at_x):
+def gen_simplex_grad(N_DIM, x, f, delta, f_val_at_x, get_D=get_D_identity):
     # select D
     D = get_D(delta, N_DIM)
     p = D.shape[1]
@@ -21,7 +25,7 @@ def gen_simplex_grad(N_DIM, x, f, delta, f_val_at_x):
     return D_t_pinv @ delta_f
 
 
-def gen_simplex_grad_sum_of_models(N_DIM, x, f, delta, f_val_at_x): # assuming x is of dim n, f returnx x values/tensors each for a sub-function
+def gen_simplex_grad_sum_of_models(N_DIM, x, f, delta, f_val_at_x, get_D=get_D_identity): # assuming x is of dim n, f returnx x values/tensors each for a sub-function
     n_models = f_val_at_x.shape[0]
     
     # select D

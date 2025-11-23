@@ -1,3 +1,5 @@
+import models
+
 import torch
 
 class point_reuse:
@@ -19,7 +21,7 @@ class point_reuse:
         return len(self.f_points)
 
 
-def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, f_post_process=lambda y: y):
+def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, get_D=models.get_D_identity, f_post_process=lambda y: y):
     open(log_path, "w").close() # clear log file
     with open(log_path, "a") as _f: # add columns
         _f.write("k    | x                                                                                | f(x)                             | delta  | target_acc | ||~g||         | f_evals | success | msg\n")
@@ -53,9 +55,7 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, a
     # 1) model the gradient at xk
         # build (gen) grad
         f_val_at_x = f(x)
-        g_approx = grad_approx(N_DIM, x, p_reuse.evaluate, delta, f_val_at_x)
-        # update f_evals
-        f_evals = p_reuse.get_n_f_evals()
+        g_approx = grad_approx(N_DIM, x, p_reuse.evaluate, delta, f_val_at_x, get_D)
     
     
     # 2) model accuracy checks
@@ -69,7 +69,7 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, a
         skip_to_5 = False
         if delta > target_acc * norm_g_approx:
             # insufficient accuracy
-            delta = .5 * delta # NOTE: up to modification
+            delta = 0.5 * delta # NOTE: up to modification
             skip_to_5 = True
             cur_msg = "2b triggered"
     
@@ -80,7 +80,7 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, a
             d = -g_approx # NOTE: up to modification
             
             # perform line search
-            t = line_search(p_reuse.evaluate, x, d, g_approx, armijo_eta, f_post_process=f_post_process)
+            t = line_search(p_reuse.evaluate, x, d, g_approx, armijo_eta, f_post_process=f_post_process, delta=delta)
             
     # 4) update
             if t != -1: # line search success
@@ -89,6 +89,9 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, a
             else: # line search failure
                 target_acc = 0.5 * target_acc # NOTE: up to modification
                 cur_msg += "line search failure"
+            
+            # update f_evals
+            f_evals = p_reuse.get_n_f_evals()
 
 
     # 5) termination test
@@ -102,8 +105,8 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, a
         log_progress(msg=cur_msg)
 
 
-# improved: delta update, descent direction
-def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, f_post_process=lambda y: y):
+# improved: delta update, descent direction, post-line serach check (optional)
+def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, f_post_process=lambda y: y, get_D=models.get_D_identity, check_d_post_line_search=False):
     open(log_path, "w").close() # clear log file
     with open(log_path, "a") as _f: # add columns
         _f.write("k    | x                                                                                | f(x)                             | delta  | target_acc | ||~g||         | f_evals | success | msg\n")
@@ -137,9 +140,7 @@ def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, armi
     # 1) model the gradient at xk
         # build (gen) grad
         f_val_at_x = f(x)
-        g_approx = grad_approx(N_DIM, x, p_reuse.evaluate, delta, f_val_at_x)
-        # update f_evals
-        f_evals = p_reuse.get_n_f_evals()
+        g_approx = grad_approx(N_DIM, x, p_reuse.evaluate, delta, f_val_at_x, get_D)
     
     
     # 2) model accuracy checks
@@ -164,15 +165,37 @@ def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, armi
             d = -g_approx / norm_g_approx # NOTE: up to modification
             
             # perform line search
-            t = line_search(p_reuse.evaluate, x, d, g_approx, armijo_eta, f_post_process=f_post_process)
+            t = line_search(p_reuse.evaluate, x, d, g_approx, armijo_eta, f_post_process=f_post_process, delta=delta)
             
     # 4) update
             if t != -1: # line search success
-                x = x + t*d # NOTE: up to modification
+                if check_d_post_line_search:
+                    # check if line search is actually better than f-evals used for the gradient
+                    D = get_D(delta, N_DIM)
+                    p = D.shape[1]
+                    
+                    min_f_val_grad = f_post_process(p_reuse.evaluate(x + D[:, 0]))
+                    min_f_val_grad_idx = 0
+                    for i in range(1, p): # for generalised simplex grad
+                        if min_f_val_grad > f_post_process(p_reuse.evaluate(x + D[:, i])):
+                            min_f_val_grad = f_post_process(p_reuse.evaluate(x + D[:, i]))
+                            min_f_val_grad_idx = i
+                    
+                    new_f = f_post_process(p_reuse.evaluate(x + t*d))
+                    if new_f < min_f_val_grad:
+                        x = x + t*d # NOTE: up to modification
+                    else:
+                        x = x + D[:, min_f_val_grad_idx]
+                else:
+                    x = x + t*d # NOTE: up to modification
+                
                 cur_msg += "line search success"
             else: # line search failure
                 target_acc = 0.5 * target_acc # NOTE: up to modification
                 cur_msg += "line search failure"
+            
+            # update f_evals
+            f_evals = p_reuse.get_n_f_evals()
 
 
     # 5) termination test
