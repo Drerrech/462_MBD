@@ -6,6 +6,7 @@ class point_reuse:
     def __init__(self, f):
         self.f = f
         self.f_points = {}
+        self.points_raw = []
     
     def evaluate(self, x):
         x_hash = x.numpy().tobytes()
@@ -15,6 +16,7 @@ class point_reuse:
         else: # must evaluate from scratch
             val = self.f(x)
             self.f_points[x_hash] = val
+            self.points_raw.append(x)
             return val # 1 stands for 1 evaluation of the function
     
     def get_n_f_evals(self):
@@ -55,7 +57,7 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, a
     # 1) model the gradient at xk
         # build (gen) grad
         f_val_at_x = f(x)
-        g_approx = grad_approx(N_DIM, x, p_reuse.evaluate, delta, f_val_at_x, get_D)
+        g_approx = grad_approx(N_DIM, x, p_reuse, delta, f_val_at_x, get_D)
     
     
     # 2) model accuracy checks
@@ -140,7 +142,7 @@ def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, armi
     # 1) model the gradient at xk
         # build (gen) grad
         f_val_at_x = f(x)
-        g_approx = grad_approx(N_DIM, x, p_reuse.evaluate, delta, f_val_at_x, get_D)
+        g_approx = grad_approx(N_DIM, x, p_reuse, delta, f_val_at_x, get_D)
     
     
     # 2) model accuracy checks
@@ -171,7 +173,7 @@ def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, armi
             if t != -1: # line search success
                 if check_d_post_line_search:
                     # check if line search is actually better than f-evals used for the gradient
-                    D = get_D(delta, N_DIM)
+                    D = get_D(delta, N_DIM, f=f, x_k=x)
                     p = D.shape[1]
                     
                     min_f_val_grad = f_post_process(p_reuse.evaluate(x + D[:, 0]))
