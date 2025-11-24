@@ -23,7 +23,7 @@ class point_reuse:
         return len(self.f_points)
 
 
-def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, get_D=models.get_D_identity, f_post_process=lambda y: y):
+def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, get_D=models.get_D_identity, f_post_process=lambda y: y):
     open(log_path, "w").close() # clear log file
     with open(log_path, "a") as _f: # add columns
         _f.write("k    | x                                                                                | f(x)                             | delta  | target_acc | ||~g||         | f_evals | success | msg\n")
@@ -71,7 +71,7 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, a
         skip_to_5 = False
         if delta > target_acc * norm_g_approx:
             # insufficient accuracy
-            delta = 0.5 * delta # NOTE: up to modification
+            delta = max(0.5 * delta, min_delta) # NOTE: up to modification
             skip_to_5 = True
             cur_msg = "2b triggered"
     
@@ -108,7 +108,7 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, a
 
 
 # improved: delta update, descent direction, post-line serach check (optional)
-def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, f_post_process=lambda y: y, get_D=models.get_D_identity, check_d_post_line_search=False):
+def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, f_post_process=lambda y: y, get_D=models.get_D_identity, check_d_post_line_search=False):
     open(log_path, "w").close() # clear log file
     with open(log_path, "a") as _f: # add columns
         _f.write("k    | x                                                                                | f(x)                             | delta  | target_acc | ||~g||         | f_evals | success | msg\n")
@@ -156,7 +156,7 @@ def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, target_acc=1, armi
         skip_to_5 = False
         if delta > target_acc * norm_g_approx:
             # insufficient accuracy
-            delta = min(0.5 * delta, 0.5 * target_acc * norm_g_approx) # NOTE: up to modification
+            delta = max(min(0.5 * delta, 0.5 * target_acc * norm_g_approx), min_delta) # NOTE: up to modification
             skip_to_5 = True
             cur_msg = "2b triggered"
     
