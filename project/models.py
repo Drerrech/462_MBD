@@ -59,3 +59,6 @@ def gen_simplex_grad_sum_of_models(N_DIM, x, p_reuse, delta, f_val_at_x, get_D):
 
     sum_of_grads = torch.sum(grad_matrix, dim=1) # TODO: why the fuck is it dim=1
     return sum_of_grads
+
+def gen_random_grad(N_DIM, x, p_reuse, delta, f_val_at_x, get_D):
+    return (torch.rand(N_DIM)-0.5)*2
