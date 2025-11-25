@@ -24,7 +24,7 @@ def runge_kutta_unconstrained(x, dir_path="project/problem_executables_M4"): # g
     return value
 
 
-def runge_kutta_constrianed(x):
+def runge_kutta_constrained(x):
     v = runge_kutta_unconstrained(x)
 
     if v == 1e20: # constraing
