@@ -1,4 +1,5 @@
 import torch
+import random
 
 def get_D_identity(delta, n_dim, p_reuse=None, x_k=None):
         return delta * torch.eye(n_dim)
@@ -23,8 +24,19 @@ def get_D_generalised_function_reuse(delta, n_dim, p_reuse=None, x_k=None): # f 
         # and hope that we have enough lol
         return D
 
+def get_D_double_identity(delta, n_dim, p_reuse=None, x_k=None):
+    return delta * torch.cat((torch.eye(n_dim), -torch.eye(n_dim)), dim=1)
 
-def gen_simplex_grad(N_DIM, x, p_reuse, delta, f_val_at_x, get_D):
+def get_D_identity_random_cut(delta, n_dim, p_reuse=None, x_k=None):
+    D = delta * torch.eye(n_dim)
+
+    mask = torch.ones(n_dim, dtype=torch.bool)
+    mask[random.randint(0, n_dim-1)] = False
+
+    return D[:, mask]
+
+
+def gen_simplex_grad(N_DIM, x, p_reuse, delta, f_val_at_x, get_D, f_post_process=lambda y: y):
     # select D
     D = get_D(delta, N_DIM, p_reuse=p_reuse, x_k=x)
     p = D.shape[1]
@@ -32,14 +44,14 @@ def gen_simplex_grad(N_DIM, x, p_reuse, delta, f_val_at_x, get_D):
     # build delta_f
     delta_f = -f_val_at_x * torch.ones(p)
     for i in range(p): # for generalised simplex grad
-        f_val = p_reuse.evaluate(x + D[:, i])
+        f_val = f_post_process(p_reuse.evaluate(x + D[:, i]))
         delta_f[i] += f_val
     
     D_t_pinv = torch.linalg.pinv(D.t())
     return D_t_pinv @ delta_f
 
 
-def gen_simplex_grad_sum_of_models(N_DIM, x, p_reuse, delta, f_val_at_x, get_D): # assuming x is of dim n, f returnx x values/tensors each for a sub-function
+def gen_simplex_grad_sum_of_models(N_DIM, x, p_reuse, delta, f_val_at_x, get_D, f_post_process=lambda y: y): # assuming x is of dim n, f returnx x values/tensors each for a sub-function
     n_models = f_val_at_x.shape[0]
     
     # select D
@@ -50,7 +62,7 @@ def gen_simplex_grad_sum_of_models(N_DIM, x, p_reuse, delta, f_val_at_x, get_D):
     # build delta_f_matrix: [df1 df2 ...] (df for every sub-function)
     delta_f = -f_val_at_x * torch.ones(p, n_models)
     for i in range(p): # for generalised simplex grad
-        f_val = p_reuse.evaluate(x + D[:, i]) # 1-dim n_models size tensor
+        f_val = f_post_process(p_reuse.evaluate(x + D[:, i])) # 1-dim n_models size tensor
         delta_f[i, :] += f_val
     
     D_t_pinv = torch.linalg.pinv(D.t())
@@ -60,5 +72,5 @@ def gen_simplex_grad_sum_of_models(N_DIM, x, p_reuse, delta, f_val_at_x, get_D):
     sum_of_grads = torch.sum(grad_matrix, dim=1) # TODO: why the fuck is it dim=1
     return sum_of_grads
 
-def gen_random_grad(N_DIM, x, p_reuse, delta, f_val_at_x, get_D):
+def gen_random_grad(N_DIM, x, p_reuse, delta, f_val_at_x, get_D, f_post_process=lambda y: y):
     return (torch.rand(N_DIM)-0.5)*2

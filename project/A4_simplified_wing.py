@@ -62,15 +62,30 @@ def simplified_wing_constrained_scaled(x, log_constraint_violations=True):
     vs = simplified_wing_unconstrained_scaled(x)
     v = vs[3].item()
 
-    if log_constraint_violations:
-        if torch.any(vs[0:3] > 0): # at least one of the first 4 flags is non-zero -> unrelaxible constraint violation
+    if torch.any(vs[0:3] > 0): # at least one of the first 4 flags is non-zero -> unrelaxible constraint violation
+        if log_constraint_violations:
             print(f"warning: at {x.tolist()} constrain violation | f = {v}")
-            v = 1e4 # NOTE: up to modification
     
     if v == 1e20: # simulation failed
-        v = 0 # as all values are negative, this is suboptimal however as solutions reach -1e7, perhaps rescale output so mbd gradient doesn't explode? TODO
+        v = 1 # as all values are negative, this is suboptimal however as solutions reach -1e7, perhaps rescale output so mbd gradient doesn't explode? TODO
         if log_constraint_violations:
             print(f"WARNING: at {x.tolist()} the simulation failed!")
+
+    # check if boundaries are violated
+    if torch.any(x < 0.001) or torch.any(x > 0.999): # violaltion!
+        v = 0
+        for xi in x:
+            if xi < 0.001 or xi > 0.999:
+                v += (xi-0.5)**2
+        return v
+    
+    # check if constraints are violated
+    if torch.any(vs[0:3] > 0): # violaltion!
+        v = 0
+        for vi in vs[0:3]:
+            v += vi**2
+        return v
+    
     
     if v != 1:
         return v

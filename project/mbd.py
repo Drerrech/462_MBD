@@ -23,12 +23,12 @@ class point_reuse:
         return len(self.f_points)
 
 
-def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, get_D=models.get_D_identity, f_post_process=lambda y: y):
+def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, get_D=models.get_D_identity, f_post_process=lambda y: y, log_decimal_pts=2):
     open(log_path, "w").close() # clear log file
     with open(log_path, "a") as _f: # add columns
         _f.write("k    | x                                                                                | f(x)                             | delta  | target_acc | ||~g||         | f_evals | success | msg\n")
     def log_progress(msg=""):
-        s = f"{k:4} | {str([round(i, 2) for i in x.tolist()]):80} | {f_post_process(f_val_at_x):32.2f} | {delta:6.4f} | {target_acc:10.4f} | {norm_g_approx:14.2f} | {f_evals:7} | {success:7} | {msg}"
+        s = f"{k:4} | {str([round(i, log_decimal_pts) for i in x.tolist()]):80} | {f_post_process(f_val_at_x):32.2f} | {delta:6.4f} | {target_acc:10.4f} | {norm_g_approx:14.2f} | {f_evals:7} | {success:7} | {msg}"
 
         with open(log_path, "a") as _f:
             _f.write(s + "\n")
@@ -57,7 +57,7 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8,
     # 1) model the gradient at xk
         # build (gen) grad
         f_val_at_x = f(x)
-        g_approx = grad_approx(N_DIM, x, p_reuse, delta, f_val_at_x, get_D)
+        g_approx = grad_approx(N_DIM, x, p_reuse, delta, f_post_process(f_val_at_x), get_D, f_post_process=f_post_process)
     
     
     # 2) model accuracy checks
@@ -108,12 +108,12 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8,
 
 
 # improved: delta update, descent direction, post-line serach check (optional)
-def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, f_post_process=lambda y: y, get_D=models.get_D_identity, check_d_post_line_search=False):
+def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8, target_acc=1, armijo_eta=0.05, eps_d=0.1, eps_stop=1e-4, max_f_evals=1e16, f_post_process=lambda y: y, get_D=models.get_D_identity, check_d_post_line_search=False, log_decimal_pts=2):
     open(log_path, "w").close() # clear log file
     with open(log_path, "a") as _f: # add columns
         _f.write("k    | x                                                                                | f(x)                             | delta  | target_acc | ||~g||         | f_evals | success | msg\n")
     def log_progress(msg=""):
-        s = f"{k:4} | {str([round(i, 2) for i in x.tolist()]):80} | {f_post_process(f_val_at_x):32.2f} | {delta:6.4f} | {target_acc:10.4f} | {norm_g_approx:14.2f} | {f_evals:7} | {success:7} | {msg}"
+        s = f"{k:4} | {str([round(i, log_decimal_pts) for i in x.tolist()]):80} | {f_post_process(f_val_at_x):32.2f} | {delta:6.4f} | {target_acc:10.4f} | {norm_g_approx:14.2f} | {f_evals:7} | {success:7} | {msg}"
 
         with open(log_path, "a") as _f:
             _f.write(s + "\n")
@@ -142,7 +142,7 @@ def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8, ta
     # 1) model the gradient at xk
         # build (gen) grad
         f_val_at_x = f(x)
-        g_approx = grad_approx(N_DIM, x, p_reuse, delta, f_val_at_x, get_D)
+        g_approx = grad_approx(N_DIM, x, p_reuse, delta, f_post_process(f_val_at_x), get_D, f_post_process=f_post_process)
     
     
     # 2) model accuracy checks
