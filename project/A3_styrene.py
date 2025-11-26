@@ -84,7 +84,7 @@ def styrene_surrogate_unconstrained(x, dir_path="project/problem_executables_M4"
     try:
         values = torch.tensor([float(x) for x in result.stdout.split()], dtype=torch.float32)
     except:
-        print(f"ERROR: at x={x.tolist()} std has: {result.stdout}")
+        #print(f"ERROR: at x={x.tolist()} std has: {result.stdout}") # TODO: replace with an acutal argument controlled condition
         return torch.tensor([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
     return values
 

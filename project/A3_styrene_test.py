@@ -33,49 +33,59 @@ x_points = [
     torch.tensor([56.7, 47.3, 72.9, 5.7, 8.3, 22.5, 56.3, 7.8], dtype=torch.float32),
     torch.tensor([88.1, 73.8, 52.6, 6.6, 6.2, 22.2, 45.3, 33.6], dtype=torch.float32),
     torch.tensor([63.8, 57.2, 59.1, 0.5, 19.5, 55.2, 38.3, 17.1], dtype=torch.float32),
-    torch.tensor([66.0, 32.7, 44.6, 48.0, 82.2, 22.3, 57.4, 0.6], dtype=torch.float32)
+    torch.tensor([66.0, 32.7, 44.6, 48.0, 82.2, 22.3, 57.4, 0.6], dtype=torch.float32),
+    torch.tensor([49.0, 55.8, 80.2, 64.3, 23.9, 44.3, 58.6, 33.6] , dtype=torch.float32),
+    torch.tensor([65.5, 63.3, 59.2, 19.1, 1.1 , 18.8, 48.7, 0.1 ], dtype=torch.float32),
+    torch.tensor([82.2, 11.4, 61.4, 57.7, 68.2, 28.5, 51.5, 23.0] , dtype=torch.float32),
+    torch.tensor([58.3, 73.9, 21.6, 97.9, 38.8, 24.6, 44.5, 19.3], dtype=torch.float32),
+    torch.tensor([71.5, 42.2, 79.8, 28.8, 41.1, 51.3, 43.9, 6.8 ], dtype=torch.float32),
+    torch.tensor([49.0, 75.5, 57.5, 17.9, 17.7, 58.5, 35.0, 0.5 ], dtype=torch.float32),
+    torch.tensor([51.4, 71.1, 71.4, 93.6, 4.5 , 33.6, 48.6, 40.1] , dtype=torch.float32),
+    torch.tensor([90.4, 5.3,  66.6, 14.3, 71.1, 39.87, 40.6, 21.0] , dtype=torch.float32),
+    torch.tensor([92.1, 20.8, 81.5, 86.7, 21.1, 51.0, 40.0, 13.2] , dtype=torch.float32),
+    torch.tensor([72.8, 51.0, 96.6, 35.7, 41.2, 57.7, 57.2, 6.6 ], dtype=torch.float32)
 ]
 
 from tqdm import tqdm
 
-log_path = "project/logs/styrene/styrene_data_v2/"
+log_path = "project/logs/styrene/styrene_surrogate_data_v2/"
 
 for x in tqdm(x_points):
     os.makedirs(log_path+str(x.tolist()), exist_ok=True)
     
     
     print("[I] gradient:")
-    mbd.mbd_basic(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/basic_[I]_fb_300.txt", max_f_evals=300, eps_stop=-1)
-    mbd.mbd_basic(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/basic_[I]_q_300.txt", max_f_evals=300, eps_stop=-1)
-    mbd.mbd_basic(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/basic_[I]_qv_300.txt", max_f_evals=300, eps_stop=-1)
+    mbd.mbd_basic(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/basic_[I]_fb_300.txt", max_f_evals=300, eps_stop=1e-7)
+    mbd.mbd_basic(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/basic_[I]_q_300.txt", max_f_evals=300, eps_stop=1e-7)
+    mbd.mbd_basic(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/basic_[I]_qv_300.txt", max_f_evals=300, eps_stop=1e-7)
     print("basic grad finished")
-    mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/v2_[I]_fb_300.txt", max_f_evals=300, eps_stop=-1)
-    mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/v2_[I]_q_300.txt", max_f_evals=300, eps_stop=-1)
-    mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/v2_[I]_qv_300.txt", max_f_evals=300, eps_stop=-1)
+    mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/v2_[I]_fb_300.txt", max_f_evals=300, eps_stop=1e-7)
+    mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/v2_[I]_q_300.txt", max_f_evals=300, eps_stop=1e-7)
+    mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/v2_[I]_qv_300.txt", max_f_evals=300, eps_stop=1e-7)
     print("v2 grad finished")
 
     print("[I -I] gradient:")
-    mbd.mbd_basic(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/basic_[I-I]_fb_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_double_identity)
-    mbd.mbd_basic(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/basic_[I-I]_q_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_double_identity)
-    mbd.mbd_basic(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/basic_[I-I]_qv_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_double_identity)
+    mbd.mbd_basic(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/basic_[I-I]_fb_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_double_identity)
+    mbd.mbd_basic(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/basic_[I-I]_q_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_double_identity)
+    mbd.mbd_basic(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/basic_[I-I]_qv_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_double_identity)
     print("basic grad finished")
-    mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/v2_[I-I]_fb_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_double_identity)
-    mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/v2_[I-I]_q_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_double_identity)
-    mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/v2_[I-I]_qv_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_double_identity)
+    mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/v2_[I-I]_fb_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_double_identity)
+    mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/v2_[I-I]_q_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_double_identity)
+    mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/v2_[I-I]_qv_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_double_identity)
     print("v2 grad finished")
 
     print("[I] \ ei gradient:")
-    mbd.mbd_basic(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/basic_[I]-ei_fb_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_identity_random_cut)
-    mbd.mbd_basic(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/basic_[I]-ei_q_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_identity_random_cut)
-    mbd.mbd_basic(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/basic_[I]-ei_qv_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_identity_random_cut)
+    mbd.mbd_basic(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/basic_[I]-ei_fb_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_identity_random_cut)
+    mbd.mbd_basic(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/basic_[I]-ei_q_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_identity_random_cut)
+    mbd.mbd_basic(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/basic_[I]-ei_qv_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_identity_random_cut)
     print("basic grad finished")
-    mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/v2_[I]-ei_fb_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_identity_random_cut)
-    mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/v2_[I]-ei_q_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_identity_random_cut)
-    mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/v2_[I]-ei_qv_300.txt", max_f_evals=300, eps_stop=-1, get_D=models.get_D_identity_random_cut)
+    mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/v2_[I]-ei_fb_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_identity_random_cut)
+    mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/v2_[I]-ei_q_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_identity_random_cut)
+    mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_simplex_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/v2_[I]-ei_qv_300.txt", max_f_evals=300, eps_stop=1e-7, get_D=models.get_D_identity_random_cut)
     print("v2 grad finished")
     
     print("random grad: ")
-    mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_random_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/v2_random_fb_300.txt", max_f_evals=300, eps_stop=-1)
-    mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_random_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/v2_random_q_300.txt", max_f_evals=300, eps_stop=-1)
-    # mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x, models.gen_random_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/v2_random_qv_300.txt", max_f_evals=300, eps_stop=-1)
+    mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_random_grad, line_search.forward_backward_line_search, log_path=log_path+str(x.tolist())+"/v2_random_fb_300.txt", max_f_evals=300, eps_stop=1e-7)
+    mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_random_grad, line_search.quadratic_interpolation_line_search, log_path=log_path+str(x.tolist())+"/v2_random_q_300.txt", max_f_evals=300, eps_stop=1e-7)
+    # mbd.mbd_v2(partial(A3_styrene.styrene_surrogate_constrained_scaled_output, log_constraint_violations=False), x, models.gen_random_grad, line_search.quadratic_interpolation_line_search_voodo, log_path=log_path+str(x.tolist())+"/v2_random_qv_300.txt", max_f_evals=300, eps_stop=1e-7)
     print("v2 random finished")
