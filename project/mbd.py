@@ -97,7 +97,7 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8,
 
 
     # 5) termination test
-        if k == max_k or f_evals >= max_f_evals: # TODO: add a non-dogshit termination test
+        if k == max_k or f_evals >= max_f_evals:
             log_progress(msg="termination test triggered, algorithm terminated")
             return
         else:
@@ -201,7 +201,7 @@ def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8, ta
 
 
     # 5) termination test
-        if k == max_k or f_evals >= max_f_evals: # TODO: add a non-dogshit termination test
+        if k == max_k or f_evals >= max_f_evals:
             log_progress(msg="termination test triggered, algorithm terminated")
             return
         else:

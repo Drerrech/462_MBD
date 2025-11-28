@@ -20,7 +20,7 @@ import os
 # mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained, x_0, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path="project/logs/styrene/experiments_surrogate/v2_I_fb.txt", delta=1, max_f_evals=300, eps_stop=1e-4)
 
 # best: -11.55e6 (better) on some x: [54.0, 66.0, 86.0, 8.0, 29.0, 51.0, 32.0, 15.0] -> [55.03, 65.35, 86.0, 8.0, 28.34, 51.1, 32.0, 15.54] 
-# surrogate: -10.97e6 (shit) samx x ->
+# surrogate: -10.97e6 same x ->
 #mbd.mbd_v2(A3_styrene.styrene_surrogate_constrained_scaled_output, x_0, models.gen_simplex_grad, line_search.forward_backward_line_search, log_path="project/logs/styrene/experiments_surrogate/v2_I_fb_scaled.txt", delta=1e1, max_f_evals=300, eps_stop=1e-4, log_decimal_pts=8)
 
 x_points = [

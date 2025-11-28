@@ -69,7 +69,7 @@ def gen_simplex_grad_sum_of_models(N_DIM, x, p_reuse, delta, f_val_at_x, get_D, 
     
     grad_matrix = D_t_pinv @ delta_f
 
-    sum_of_grads = torch.sum(grad_matrix, dim=1) # TODO: why the fuck is it dim=1
+    sum_of_grads = torch.sum(grad_matrix, dim=1) # dim=1 should be correct, but i don't remember whether it is or not... NOTE: beware!
     return sum_of_grads
 
 def gen_random_grad(N_DIM, x, p_reuse, delta, f_val_at_x, get_D, f_post_process=lambda y: y):
