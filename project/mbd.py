@@ -57,7 +57,7 @@ def mbd_basic(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8,
     # 1) model the gradient at xk
         # build (gen) grad
         f_val_at_x = f(x)
-        g_approx = grad_approx(N_DIM, x, p_reuse, delta, f_post_process(f_val_at_x), get_D, f_post_process=f_post_process)
+        g_approx = grad_approx(N_DIM, x, p_reuse, delta, f_val_at_x, get_D, f_post_process=f_post_process)
     
     
     # 2) model accuracy checks
@@ -142,7 +142,7 @@ def mbd_v2(f, x, grad_approx, line_search, log_path, delta=1, min_delta=1e-8, ta
     # 1) model the gradient at xk
         # build (gen) grad
         f_val_at_x = f(x)
-        g_approx = grad_approx(N_DIM, x, p_reuse, delta, f_post_process(f_val_at_x), get_D, f_post_process=f_post_process)
+        g_approx = grad_approx(N_DIM, x, p_reuse, delta, f_val_at_x, get_D, f_post_process=f_post_process)
     
     
     # 2) model accuracy checks

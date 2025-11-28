@@ -20,12 +20,13 @@ def simplified_wing_unconstrained(x, dir_path="project/problem_executables_M4"):
     # check for errors
     if len(result.stderr) != 0:
         print(f"ERROR: at x={x.tolist()} simplified wing encountered an error: {result.stderr}")
+        return torch.tensor([0, 0, 0, random.random()], dtype=torch.float32)
     
     try:
         values = torch.tensor([float(x) for x in result.stdout.split()], dtype=torch.float32)
     except:
         print(f"ERROR: at x={x.tolist()} std has: {result.stdout}")
-        return torch.tensor([0, 0, 0, 1])
+        return torch.tensor([0, 0, 0, random.random()], dtype=torch.float32)
     return values
 
 
