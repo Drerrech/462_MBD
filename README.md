@@ -16,10 +16,23 @@ calling with sum-of-models property:
 
 ## how to plot results:
 
-TODO
+For plotting, see the mbd_plots script.
+
+Each method in this script has a Doc String describing the purpose and the function of each method.
+
+There are four python notebooks in the project folder, named rheology.ipynb, rungeKutta.ipynb, planeWing.ipynb and styrene.ipynb.
+
+Each one of these contain the code to plot the performance profiles related to each of those problems. If the code is run as it is, all plots for every MBD variant will be plotted (looks like spaghetti).
+
+The contents of each notebook cell can be pasted into a python script and run separately if one wishes to plot without using python notebooks. 
+
+These instructions can be found at the top of the files where they may be needed. 
 
 ## useful files, described:
 * mbd.py - contains the methods for calling the actual MBD algorithms, as well as a simple function hashing class (for evaluation reuse)
 * models.py - functions for approximating the gradient
 * line_search.py - 3 line search algorithms (1 forward backward, 2 versions of quadratic)
 * 'problem_name'.py and 'problem_name'_test.py - files implementing the BB as well as generating the data
+
+## contact
+Contact Justin Dilabio (jdilabio123@gmail.com) or Karim Akhtiamov (karim.akhtyamov@gmail.com) if you have any questions about the code.
