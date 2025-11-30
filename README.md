@@ -28,10 +28,11 @@ The contents of each notebook cell can be pasted into a python script and run se
 
 These instructions can be found at the top of the files where they may be needed. 
 
-Contact Justin Dilabio (jdilabio123@gmail.com) or Karim Akhtiamov (karim.akhtyamov@gmail.com) if you have any questions about the code.
-
 ## useful files, described:
 * mbd.py - contains the methods for calling the actual MBD algorithms, as well as a simple function hashing class (for evaluation reuse)
 * models.py - functions for approximating the gradient
 * line_search.py - 3 line search algorithms (1 forward backward, 2 versions of quadratic)
 * 'problem_name'.py and 'problem_name'_test.py - files implementing the BB as well as generating the data
+
+## contact
+Contact Justin Dilabio (jdilabio123@gmail.com) or Karim Akhtiamov (karim.akhtyamov@gmail.com) if you have any questions about the code.
